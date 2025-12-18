@@ -1,11 +1,15 @@
 final int DIAL_SIZE = 100;
-private record DialState(int position, int zeroCrossings) { }
-private record Movement(Direction direction, int steps){
+
+private record DialState(int position, int zeroCrossings) {}
+
+private record Movement(Direction direction, int steps) {
     public boolean isLeft() {
         return direction == Direction.LEFT;
     }
 }
-private enum Direction { LEFT, RIGHT};
+
+private enum Direction {LEFT, RIGHT}
+
 
 void main() throws IOException {
     long start = System.nanoTime();
@@ -15,7 +19,8 @@ void main() throws IOException {
     int dialZeroLandings = 0;
 
     try (Stream<String> lines = Files.lines(Path.of(filePath))) {
-        for (Movement move : lines.filter(s -> !s.isBlank())
+        for (Movement move : lines
+                .filter(s -> !s.isBlank())
                 .map(this::parseMove)
                 .toList()) {
 
@@ -38,10 +43,11 @@ private Movement parseMove(String line) {
 
 private DialState rotateDial(int oldPosition, Movement move) {
     int sum = (move.isLeft()) ? (oldPosition - move.steps) : (oldPosition + move.steps);
-    // Number of full rotations = zero crossings
-    int zeroCrossings = Math.abs(Math.floorDiv(sum, DIAL_SIZE));
     // Final wrapped position 0–99
     int newPosition = Math.floorMod(sum, DIAL_SIZE);
+
+    // Number of full rotations = zero crossings
+    int zeroCrossings = Math.abs(Math.floorDiv(sum, DIAL_SIZE));
     if (move.isLeft()) {
         if (newPosition == 0) zeroCrossings++;
         if (oldPosition == 0) zeroCrossings--;
