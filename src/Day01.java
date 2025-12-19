@@ -1,4 +1,3 @@
-final String filePath = "src/secret_entrance.txt";
 final int DIAL_SIZE = 100;
 final int DIAL_INITIAL_POSITION = 50;
 static int LANDINGS_ON_ZERO = 0;
@@ -44,6 +43,9 @@ private Movement parseMove(String line) {
  * Counts when crossing through position zero - secret_entrance_small.txt = Result is 6 landings in zero.
  */
 void main() throws IOException {
+    long start = System.nanoTime();
+
+    String filePath = "resources/day01/secret_entrance.txt";
     CircularLock lock = new CircularLock(DIAL_INITIAL_POSITION);
     try (var lines = Files.lines(Path.of(filePath))) {
         lines
@@ -53,6 +55,9 @@ void main() throws IOException {
     }
     System.out.println("Landings: " + LANDINGS_ON_ZERO);
     System.out.println("Crossings: " + CROSSINGS_ON_ZERO);
+
+    long duration = System.nanoTime() - start;
+    System.out.println("Execution time (ms): " + duration / 1_000_000);
 }
 
 

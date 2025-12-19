@@ -14,7 +14,7 @@ private enum Direction {LEFT, RIGHT}
 void main() throws IOException {
     long start = System.nanoTime();
 
-    String filePath = "Day01/secret_entrance_small.txt";
+    String filePath = "resources/day01/secret_entrance.txt";
     int position = 50;
     int dialZeroLandings = 0;
 
