@@ -20,36 +20,35 @@ public static final Path FILE_PATH = Path.of("resources/day03/lobby.txt");
  */
 
 void main() throws IOException {
-    long totalSum;
     try (var lines = Files.lines(FILE_PATH)) {
-        totalSum = lines
+        long totalSum = lines
                 .filter(Predicate.not(String::isBlank))
-                .mapToLong(this::sumLargestJoltage)
+                .mapToLong(this::maxJoltage)
                 .sum();
+        
+        System.out.println("total is: " + totalSum);
     }
-    System.out.println("total is: " + totalSum);
 }
 
-private long sumLargestJoltage(String line) {
-    int firstHighest = 0;
-    int secondHighest = 0;
-    boolean isLastDigit = false;
-
+private long maxJoltage(String line) {
+    int first = -1;
+    int second = -1;
+    
     for (int i = 0; i <= line.length() - 1; i++) {
-        isLastDigit = (i == (line.length() - 1));
-        int current = Integer.parseInt(String.valueOf(line.charAt(i)));
+        boolean isLastDigit = (i == (line.length() - 1));
+        int current = line.charAt(i) - '0';
 
         // Find 1st and 2nd bigger digits in order
         if (isLastDigit) {
-            secondHighest = Math.max(current, secondHighest);
+            second = Math.max(current, second);
         } else {
-            if (current > firstHighest) {
-                firstHighest = current;
-                secondHighest = 0;
-            } else if (current > secondHighest) {
-                secondHighest = current;
+            if (current > first) {
+                first = current;
+                second = 0;
+            } else if (current > second) {
+                second = current;
             }
         }
     }
-    return Long.parseLong(String.valueOf(firstHighest).concat(String.valueOf(secondHighest)));
+    return first * 10L + second;
 }
