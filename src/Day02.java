@@ -1,5 +1,4 @@
-final String filePath = "resources/day02/gift_shop_small.txt";
-long totalSumOfInvalidIds = 0;
+static final String FILE_PATH = "resources/day02/gift_shop_small.txt";
 
 record Range(long start, long end) {
     static Range parse(String s) {
@@ -17,19 +16,19 @@ record Range(long start, long end) {
  * So, 55 (5 twice), 6464 (64 twice), and 123123 (123 twice) would all be invalid IDs.
  */
 void main() throws IOException {
-    String input = Files.readString(Path.of(filePath));
-    Stream.of(input.split(","))
+    String input = Files.readString(Path.of(FILE_PATH));
+    long totalSum = Stream.of(input.split(","))
             .map(Range::parse)
-            .forEach(this::sumInvalidIds);
-    System.out.println("Total Sum of invalid Id's: " + totalSumOfInvalidIds);
+            .mapToLong(this::sumInvalidIdsInRange)
+            .sum();
+    ;
+    System.out.println("Total Sum of invalid Id's: " + totalSum);
 }
 
-private void sumInvalidIds(Range range) {
-    for (long current = range.start(); current <= range.end(); current++) {
-        if (isInvalidId(current)) {
-            totalSumOfInvalidIds += current;
-        }
-    }
+private long sumInvalidIdsInRange(Range range) {
+    return LongStream.rangeClosed(range.start(), range.end())
+            .filter(this::isInvalidId)
+            .sum();
 }
 
 private boolean isInvalidId(long id) {
