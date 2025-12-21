@@ -1,4 +1,4 @@
-final String filePath = "resources/day02/gift_shop.txt";
+final String filePath = "resources/day02/gift_shop_small.txt";
 long totalSumOfInvalidIds = 0;
 
 record Range(long start, long end) {
@@ -20,20 +20,34 @@ void main() throws IOException {
     String input = Files.readString(Path.of(filePath));
     Stream.of(input.split(","))
             .map(Range::parse)
-            .forEach(this::processRange);
+            .forEach(this::sumInvalidIds);
     System.out.println("Total Sum of invalid Id's: " + totalSumOfInvalidIds);
 }
 
-private void processRange(Range range) {
+private void sumInvalidIds(Range range) {
     for (long current = range.start(); current <= range.end(); current++) {
-        if (idHasRepeatedSequence(current)) {
+        if (isInvalidId(current)) {
             totalSumOfInvalidIds += current;
         }
     }
 }
 
-private boolean idHasRepeatedSequence(long id) {
-    String idStr = String.valueOf(id);
-    int halfIdx = idStr.length() / 2;
-    return idStr.substring(0, halfIdx).equals(idStr.substring(halfIdx));
+private boolean isInvalidId(long id) {
+    String s = String.valueOf(id);
+    int length = s.length();
+    for (int parts = 2; parts <= length; parts++) {
+        if (length % parts != 0) {
+            continue;
+        }
+
+        int blockSize = length / parts;
+        String block = s.substring(0, blockSize);
+        String seq = block.repeat(parts);
+
+        if (seq.equals(s)) {
+            return true;
+        }
+    }
+
+    return false;
 }
