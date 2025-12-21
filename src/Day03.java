@@ -25,30 +25,19 @@ void main() throws IOException {
                 .filter(Predicate.not(String::isBlank))
                 .mapToLong(this::maxJoltage)
                 .sum();
-        
+
         System.out.println("total is: " + totalSum);
     }
 }
 
 private long maxJoltage(String line) {
-    int first = -1;
-    int second = -1;
-    
-    for (int i = 0; i <= line.length() - 1; i++) {
-        boolean isLastDigit = (i == (line.length() - 1));
-        int current = line.charAt(i) - '0';
+    int maxJoltage = -1;
+    int highestFirst = line.charAt(0) - '0';
 
-        // Find 1st and 2nd bigger digits in order
-        if (isLastDigit) {
-            second = Math.max(current, second);
-        } else {
-            if (current > first) {
-                first = current;
-                second = 0;
-            } else if (current > second) {
-                second = current;
-            }
-        }
+    for (int i = 1; i < line.length(); i++) {
+        int current = line.charAt(i) - '0';
+        maxJoltage = Math.max(maxJoltage, highestFirst * 10 + current);
+        highestFirst = Math.max(highestFirst, current);
     }
-    return first * 10L + second;
+    return maxJoltage;
 }
