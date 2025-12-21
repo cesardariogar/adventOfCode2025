@@ -14,6 +14,7 @@ record Range(long start, long end) {
 /***
  * find the invalid IDs by looking for any ID which is made only of some sequence of digits repeated twice.
  * So, 55 (5 twice), 6464 (64 twice), and 123123 (123 twice) would all be invalid IDs.
+ * Spoiler: Total Sum of invalid Id's: 28851438585
  */
 void main() throws IOException {
     String input = Files.readString(Path.of(FILE_PATH));
