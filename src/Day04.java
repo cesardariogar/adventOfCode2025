@@ -3,70 +3,66 @@ static final String FILE_PATH = "resources/day04/printing.txt"; // Part I = Tota
 final char PAPER_ROLL = '@';
 final int MAX_ADJACENT_ROLLS = 3;
 
-void main() throws IOException {
-    List<String> linesList;
-    try (var lines = Files.lines(Path.of(FILE_PATH))) {
-        linesList = lines
-                .filter(Predicate.not(String::isEmpty))
-                .collect(Collectors.toList());
-    }
+static final int[][] NEIGHBORS = {
+        {-1, -1}, {-1, 0}, {-1, 1},
+        {0, -1}, {0, 1},
+        {1, -1}, {1, 0}, {1, 1}
+};
 
-    int rollsCanBeRemovedTotal = 0;
-    int currentlyRemoved = 0;
+void main() throws IOException {
+    var lines = Files.readAllLines(Path.of(FILE_PATH))
+            .stream()
+            .filter(Predicate.not(String::isEmpty))
+            .collect(Collectors.toList());
+
+    int totalRemoved = 0;
+    int removed;
+
     do {
-        rollsCanBeRemovedTotal += (currentlyRemoved = processMaze(linesList));
-    } while (currentlyRemoved != 0);
-    System.out.println("Total: " + rollsCanBeRemovedTotal);
+        removed = processMaze(lines);
+        totalRemoved += removed;
+    } while (removed > 0);
+
+    System.out.println("Total: " + totalRemoved);
 }
 
 private int processMaze(List<String> lines) {
-    int blockAvailableRollsSum = 0;
-    for (int l = 0; l < lines.size(); l++) {
-        StringBuilder line = new StringBuilder(lines.get(l));
-        for (int c = 0; c < line.length(); c++) {
-            if (isPaperRoll(line.charAt(c)) == 1) {
-                boolean hasBackColumn = (c > 0);
-                boolean hasFrontColumn = (c <= line.length() - 2);
-                boolean hasLineAbove = (l > 0);
-                boolean hasLineBelow = (l <= lines.size() - 2);
-                int currentAdjacentRolls = 0;
-                if (hasBackColumn) {
-                    currentAdjacentRolls += isPaperRoll(line.charAt(c - 1));
-                    if (hasLineAbove) {
-                        currentAdjacentRolls += isPaperRoll(lines.get(l - 1).charAt(c - 1));
-                    }
-                    if (hasLineBelow) {
-                        currentAdjacentRolls += isPaperRoll(lines.get(l + 1).charAt(c - 1));
-                    }
-                }
-                if (hasLineAbove) {
-                    currentAdjacentRolls += isPaperRoll(lines.get(l - 1).charAt(c));
-                }
-                if (hasLineBelow) {
-                    currentAdjacentRolls += isPaperRoll(lines.get(l + 1).charAt(c));
-                }
-                if (hasFrontColumn) {
-                    currentAdjacentRolls += isPaperRoll(line.charAt(c + 1));
-                    if (hasLineAbove) {
-                        currentAdjacentRolls += isPaperRoll(lines.get(l - 1).charAt(c + 1));
-                    }
-                    if (hasLineBelow) {
-                        currentAdjacentRolls += isPaperRoll(lines.get(l + 1).charAt(c + 1));
-                    }
-                }
-                if (currentAdjacentRolls <= MAX_ADJACENT_ROLLS) {
-                    blockAvailableRollsSum++;
-                    line.setCharAt(c, '.');
-                    lines.set(l, line.toString());
+    int removed = 0;
+
+    for (int row = 0; row < lines.size(); row++) {
+        var current = new StringBuilder(lines.get(row));
+
+        for (int col = 0; col < current.length(); col++) {
+            if (isPaperRoll(current.charAt(col))) {
+                int adjacent = countAdjacentRolls(lines, row, col);
+
+                if (adjacent <= MAX_ADJACENT_ROLLS) {
+                    current.setCharAt(col, '.');
+                    removed++;
                 }
             }
         }
+        lines.set(row, current.toString());
     }
-    return blockAvailableRollsSum;
+
+    return removed;
 }
 
-private int isPaperRoll(char c) {
-    return (c == PAPER_ROLL) ? 1 : 0;
+private int countAdjacentRolls(List<String> lines, int row, int col) {
+    return (int) Arrays.stream(NEIGHBORS)
+            .map(offset -> new int[]{row + offset[0], col + offset[1]})
+            .filter(pos -> isInside(lines, pos[0], pos[1]))
+            .filter(pos -> isPaperRoll(lines.get(pos[0]).charAt(pos[1])))
+            .count();
+}
+
+private boolean isInside(List<String> lines, int row, int col) {
+    return row >= 0 && row < lines.size()
+            && col >= 0 && col < lines.get(row).length();
+}
+
+private boolean isPaperRoll(char c) {
+    return (c == PAPER_ROLL);
 }
 
 
