@@ -1,29 +1,38 @@
-
 void main() throws IOException {
-    String FILE_PATH = "resources/Day07/laboratories_small.txt";
-//    String FILE_PATH = "resources/Day07/laboratories_small.txt";
+    String FILE_PATH = "resources/Day07/laboratories.txt"; // Part I = 1640, Part II = 40999072541589
+//    String FILE_PATH = "resources/Day07/laboratories_small.txt"; // Part I = 21, Part II = 40
 
     var lines = Files.readAllLines(Path.of(FILE_PATH));
-    int width = lines.getFirst().length();
     int start = lines.getFirst().indexOf('S');
-    Set<Integer> beams = new HashSet<>();
-    beams.add(start);
-
     int splitCounter = 0;
-    for (int row = 1; row < lines.size(); row++) {
-        String line = lines.get(row);
-        Set<Integer> next = new HashSet<>();
-        for (int col : beams) {
-            if (line.charAt(col) == '^') {
-                splitCounter++;     // count EVERY hit
-                if (col - 1 >= 0) next.add(col - 1);
-                if (col + 1 < width) next.add(col + 1);
-            } else {
-                next.add(col);
+
+    Map<Integer, Long> pathEdgesMap = new HashMap<>();
+    pathEdgesMap.put(start, 1L);
+
+    for (int r = 1; r < lines.size(); r++) {
+        Map<Integer, Long> next = new HashMap<>();
+        String row = lines.get(r);
+
+        for (var entry : pathEdgesMap.entrySet()) {
+            int col = entry.getKey();
+            long count = entry.getValue();
+
+            if (col >= 0 && col < row.length() && row.charAt(col) == '^') {
+                splitCounter++;
+                next.put(col - 1, next.getOrDefault(col - 1, 0L) + count);
+                next.put(col + 1, next.getOrDefault(col + 1, 0L) + count);
+            }
+            else {
+                next.put(col, next.getOrDefault(col, 0L) + count);
             }
         }
-        beams = next;
+        pathEdgesMap = next;
     }
 
-    System.out.println(splitCounter);
+    System.out.println("Part I " + splitCounter);
+    long result = 0;
+    for (long count : pathEdgesMap.values()) {
+        result += count;
+    }
+    System.out.println("Part II: " + result);
 }
